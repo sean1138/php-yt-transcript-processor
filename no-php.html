@@ -21,10 +21,10 @@
 		</div>
 	</form>
 
-	<h2>Raw HTML:</h2>
+	<h2>Raw HTML</h2>
 	<pre class="language-html"><code id="htmlOutput" class="language-html"></code></pre>
 
-	<h2>Rendered HTML:</h2>
+	<h2>Rendered HTML <span id="saveButtons"><button id="saveTxt">Save as .txt</button> <button id="saveHtml">Save as .html</button></span></h2>
 	<div class="rendered" id="renderedOutput"></div>
 
 	<script>
@@ -114,58 +114,115 @@
 			codeEl.textContent = output;
 			Prism.highlightAll();
 			document.getElementById("renderedOutput").innerHTML = output;
+
+			// show save buttons
+			const renderedOutput = document.getElementById('renderedOutput');
+			const button = document.getElementById('myButton');
+
+			if (renderedOutput.innerHTML.trim() !== "") {
+			  saveButtons.style.display = "inline-flex"; // Show the save buttons
+			} else {
+			  saveButtons.style.display = "none"; // Hide them
+			}
 		}
 
 		// Update on input
 		document.getElementById("transcript").addEventListener("input", updateOutput);
 		document.getElementById("videoUrl").addEventListener("input", updateOutput);
 		document.getElementById("gapThreshold").addEventListener("input", updateOutput);
+
+		// function to save rendered output as a file
+		function downloadFile(filename, content, type = "text/plain") {
+			const blob = new Blob([content], { type });
+			const url = URL.createObjectURL(blob);
+
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = filename;
+			a.click();
+
+			URL.revokeObjectURL(url);
+		}
+
+		document.getElementById("saveTxt").addEventListener("click", () => {
+			const content = document.getElementById("renderedOutput").innerText;
+			downloadFile("transcript.txt", content, "text/plain");
+		});
+
+		document.getElementById("saveHtml").addEventListener("click", () => {
+			const content = document.getElementById("renderedOutput").innerHTML;
+			const wrapped = `<!DOCTYPE html>
+		<html lang="en">
+		<head>
+		<meta charset="UTF-8">
+		<title>Transcript</title>
+		</head>
+		<body>
+		${content}
+		</body>
+		</html>`;
+			downloadFile("transcript.html", wrapped, "text/html");
+		});
+
+
 	</script>
 	<!-- code syntax highlighting https://prismjs.com -->
 	<link rel="stylesheet" href="prism.css" />
 	<script src="prism.js"></script>
 	<style>
-	.inputs,
-	pre {
-		height: 25vh;
-	}
-
-	.inputs {
-		display: flex;
-		align-items: flex-start;
-		gap: 1rem;
-
-		textarea {
-			align-self: normal;
-			width: 100%;
-		}
-
-		input[type="url"] {
-			width: auto;
-			max-width: 80ch;
-		}
-		.flexcol{
+		h2{
 			display: flex;
-			flex-direction: column;
 			gap: 1rem;
-		}
-		label{
-			display:block;
-		}
-	}
 
-	/*pre { background: #f5f5f5; padding: 1em; white-space: pre-wrap; }*/
-	.rendered {
-		margin: 0 auto;
-		width: 100ch;
-		font-size: calc(100% + .125vw);
-		line-height: 1.5;
-		word-spacing: 0.16em;
-
-		time {
-			font-weight: bold;
+			span{
+				display:none;
+				display: inline-flex;
+				gap: inherit;
+				border: 1px solid red;
+			}
 		}
-	}
+		.inputs,
+		pre {
+			height: 25vh;
+		}
+
+		.inputs {
+			display: flex;
+			align-items: flex-start;
+			gap: 1rem;
+
+			textarea {
+				align-self: normal;
+				width: 100%;
+			}
+
+			input[type="url"] {
+				width: auto;
+				max-width: 80ch;
+			}
+			.flexcol{
+				display: flex;
+				flex-direction: column;
+				gap: 1rem;
+			}
+			label{
+				display:block;
+			}
+		}
+		#saveButtons{display: none;}
+
+		/*pre { background: #f5f5f5; padding: 1em; white-space: pre-wrap; }*/
+		.rendered {
+			margin: 0 auto;
+			width: 100ch;
+			font-size: calc(100% + .125vw);
+			line-height: 1.5;
+			word-spacing: 0.16em;
+
+			time {
+				font-weight: bold;
+			}
+		}
 	</style>
 </body>
 </html>
