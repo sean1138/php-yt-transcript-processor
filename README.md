@@ -9,4 +9,6 @@ The index.php file can be considered the mvp or version 1.  It works fine.
 
 The no-php.html file is a standalone file that updates the coverted outputs anytime the textarea input changes, **no convert/submit button to click**.  It also has an optional text input for a URL - typing or pasting anything into this input turns the output transcript's timestamps into links with a `?t=n` format parameter (n = time in seconds) appended to the end which is youtube's timestamped link parameter.
 
+The optional gap detection looks for gaps in the timestamps and inserts an H2 element where it finds them.
+
 ![no-php.html screenshot](no-php.jpg?raw=true)
