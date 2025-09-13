@@ -13,4 +13,4 @@ The optional gap detection looks for gaps in the timestamps and inserts an H2 el
 
 ![no-php.html screenshot](no-php.jpg?raw=true)
 
-[demo]([url](https://yt-transcript-proc.netlify.app/no-php.html))
+[demo](https://yt-transcript-proc.netlify.app/no-php.html)
