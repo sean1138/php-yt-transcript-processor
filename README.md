@@ -1,10 +1,12 @@
 # php-yt-transcript-processor
-turn a youtube video transcript into html
+Turn a youtube video transcript into html!
 
-yet another simple tool from chatgpt that took less than an hour to get something not completely awful.  we lazymaxxing out here with this one!
+Yet another simple tool from chatgpt that took less than an hour to get something not completely awful.  we lazymaxxing out here with this one!
 
-The index.php file can be considered the mvp or version 1.  it works fine.
+My initial request to chatgeebeedee included "is there a way we can automate joining sentences together instead of having them broken into different lines because of the timestamps? I want to keep the timestamps where a sentence, paragraph, or topic/idea starts or changes" and that's what it does.  It doesn't just output the exact same formatting from the plaintext you give it and timestamp accuraccy may be a little bit off because of that.
 
-The no-php.html file is a standalone file that updates the coverted outputs anytime the textarea input changes, no more convert/submit button to click.  It also has an optional text input for a URL - typing or pasting anything into this input turns the output transcript's timestamps into links with a `?t=n` format parameter (n = time in seconds) appended to the end which is youtube's timestamped link parameter.
+The index.php file can be considered the mvp or version 1.  It works fine.
+
+The no-php.html file is a standalone file that updates the coverted outputs anytime the textarea input changes, **no convert/submit button to click**.  It also has an optional text input for a URL - typing or pasting anything into this input turns the output transcript's timestamps into links with a `?t=n` format parameter (n = time in seconds) appended to the end which is youtube's timestamped link parameter.
 
 ![no-php.html screenshot](no-php.jpg?raw=true)
