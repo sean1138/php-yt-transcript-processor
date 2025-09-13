@@ -11,6 +11,8 @@ The no-php.html file is a standalone file that updates the coverted outputs anyt
 
 The optional gap detection looks for gaps in the timestamps and inserts an H2 element where it finds them.
 
+The save as .txt and .html buttons eliminate the need to copy/paste if you want a file from the output for some reason.
+
 ![no-php.html screenshot](no-php.jpg?raw=true)
 
 [demo](https://yt-transcript-proc.netlify.app/no-php.html)
