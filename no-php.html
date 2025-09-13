@@ -1,171 +1,143 @@
-<?php
-// PHP just delivers the page now — the transcript conversion is handled in JS.
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Transcript Converter</title>
-<style>
-textarea, input[type="url"] { width: 100%; margin-bottom: 1em; }
-textarea { height: 200px; }
-pre { background: #f5f5f5; padding: 1em; white-space: pre-wrap; }
-time { font-weight: bold; }
-</style>
+	<meta charset="UTF-8">
+	<title>Video Transcript to HTML Convertor</title>
 </head>
 <body>
-<h1>Transcript to HTML Converter</h1>
+	<h1>Video Transcript to HTML Converter</h1>
 
-<form onsubmit="return false;">
-  <textarea id="transcript" placeholder="Paste transcript text here..."></textarea>
-  <input type="url" id="videoUrl" placeholder="Optional video URL (adds timestamp links)">
-</form>
+	<form onsubmit="return false;" class="inputs">
+		<textarea id="transcript" placeholder="Paste transcript text here..."></textarea>
+		<input type="url" id="videoUrl" placeholder="Optional video URL (adds timestamp links)">
+	</form>
 
-<h2>Converted HTML:</h2>
-<pre class="language-html" style="height: 32vh;"><code id="htmlOutput" class="language-html"></code></pre>
+	<h2>Converted HTML:</h2>
+	<pre class="language-html"><code id="htmlOutput" class="language-html"></code></pre>
 
-<h2>Rendered HTML:</h2>
-<div class="rendered" id="renderedOutput"></div>
+	<h2>Rendered HTML:</h2>
+	<div class="rendered" id="renderedOutput"></div>
 
-<script>
-// --- Utility: parse HH:MM:SS or MM:SS into seconds
-function timeToSeconds(ts) {
-  const parts = ts.split(":").map(Number);
-  if (parts.length === 2) {
-    // MM:SS
-    return parts[0] * 60 + parts[1];
-  } else if (parts.length === 3) {
-    // HH:MM:SS
-    return parts[0] * 3600 + parts[1] * 60 + parts[2];
-  }
-  return 0;
-}
+	<script>
+		// --- Utility: parse HH:MM:SS or MM:SS into seconds
+		function timeToSeconds(ts) {
+			const parts = ts.split(":").map(Number);
+			if (parts.length === 2) {
+				// MM:SS
+				return parts[0] * 60 + parts[1];
+			} else if (parts.length === 3) {
+				// HH:MM:SS
+				return parts[0] * 3600 + parts[1] * 60 + parts[2];
+			}
+			return 0;
+		}
 
-function convertTranscript(text, videoUrl) {
-  const lines = text.trim().split(/\r?\n/);
-  let output = "";
+		function convertTranscript(text, videoUrl) {
+			const lines = text.trim().split(/\r?\n/);
+			let output = "";
 
-  let currentTime = "";
-  let currentParagraph = "";
-  let expectContinuation = false;
+			let currentTime = "";
+			let currentParagraph = "";
+			let expectContinuation = false;
 
-  for (let rawLine of lines) {
-    let line = rawLine.trim();
+			for (let rawLine of lines) {
+				let line = rawLine.trim();
 
-    if (/^\d{1,2}:\d{2}(?::\d{2})?$/.test(line)) {
-      // If we already have a paragraph in progress AND not expecting continuation
-      if (currentParagraph && !expectContinuation) {
-        const timeHtml = makeTimeElement(currentTime, videoUrl);
-        output += `<p>${timeHtml} ${currentParagraph}</p>\n`;
-        currentParagraph = "";
-      }
+				if (/^\d{1,2}:\d{2}(?::\d{2})?$/.test(line)) {
+					// If we already have a paragraph in progress AND not expecting continuation
+					if (currentParagraph && !expectContinuation) {
+						const timeHtml = makeTimeElement(currentTime, videoUrl);
+						output += `<p>${timeHtml} ${currentParagraph}</p>\n`;
+						currentParagraph = "";
+					}
 
-      // Normalize timestamp to HH:MM:SS
-      let parts = line.split(":");
-      if (parts.length === 2) {
-        line = "00:" + line;
-      }
+					// Normalize timestamp to HH:MM:SS
+					let parts = line.split(":");
+					if (parts.length === 2) {
+						line = "00:" + line;
+					}
 
-      currentTime = line;
-    } else {
-      // Spoken text
-      currentParagraph += (currentParagraph === "" ? "" : " ") + line;
+					currentTime = line;
+				} else {
+					// Spoken text
+					currentParagraph += (currentParagraph === "" ? "" : " ") + line;
 
-      if (/[.!?]["')]*$/.test(line)) {
-        expectContinuation = false;
-      } else {
-        expectContinuation = true;
-      }
-    }
-  }
+					if (/[.!?]["')]*$/.test(line)) {
+						expectContinuation = false;
+					} else {
+						expectContinuation = true;
+					}
+				}
+			}
 
-  if (currentParagraph) {
-    const timeHtml = makeTimeElement(currentTime, videoUrl);
-    output += `<p>${timeHtml} ${currentParagraph}</p>\n`;
-  }
+			if (currentParagraph) {
+				const timeHtml = makeTimeElement(currentTime, videoUrl);
+				output += `<p>${timeHtml} ${currentParagraph}</p>\n`;
+			}
 
-  return output;
-}
+			return output;
+		}
 
-function makeTimeElement(ts, videoUrl) {
-  if (!videoUrl) {
-    return `<time datetime="${ts}">${ts}</time>`;
-  }
-  const seconds = timeToSeconds(ts);
-  const url = videoUrl.includes("?") ? `${videoUrl}&t=${seconds}` : `${videoUrl}?t=${seconds}`;
-  return `<a href="${url}" target="_blank"><time datetime="${ts}">${ts}</time></a>`;
-}
+		function makeTimeElement(ts, videoUrl) {
+			if (!videoUrl) {
+				return `<time datetime="${ts}">${ts}</time>`;
+			}
+			const seconds = timeToSeconds(ts);
+			const url = videoUrl.includes("?") ? `${videoUrl}&t=${seconds}` : `${videoUrl}?t=${seconds}`;
+			return `<a href="${url}" target="_blank"><time datetime="${ts}">${ts}</time></a>`;
+		}
 
-function updateOutput() {
-  const text = document.getElementById("transcript").value;
-  const videoUrl = document.getElementById("videoUrl").value.trim();
-  const output = convertTranscript(text, videoUrl);
+		function updateOutput() {
+			const text = document.getElementById("transcript").value;
+			const videoUrl = document.getElementById("videoUrl").value.trim();
+			const output = convertTranscript(text, videoUrl);
 
-  document.getElementById("htmlOutput").textContent = output;
-  Prism.highlightAll();  // re-run syntax highlighting
-  document.getElementById("renderedOutput").innerHTML = output;
-}
+			document.getElementById("htmlOutput").textContent = output;
+			Prism.highlightAll();  // re-run syntax highlighting
+			document.getElementById("renderedOutput").innerHTML = output;
+		}
 
-// Update on input
-document.getElementById("transcript").addEventListener("input", updateOutput);
-document.getElementById("videoUrl").addEventListener("input", updateOutput);
-</script>
-<!-- code syntax highlighting https://prismjs.com -->
-<link rel="stylesheet" href="prism.css" />
-<script src="prism.js"></script>
-<style>
-	button[type="submit"] {
-	  background: #FF0000;
-	  color: #fff;
-	  font-size: 1rem;
-	  font-weight: bold;
-	  padding: 0.7em 1.6em;
-	  border: none;
-	  border-radius: 2em; /* pill shape */
-	  cursor: pointer;
-	  transition: background 0.25s ease, transform 0.1s ease, box-shadow 0.2s ease;
-	  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-	  position: relative;
+		// Update on input
+		document.getElementById("transcript").addEventListener("input", updateOutput);
+		document.getElementById("videoUrl").addEventListener("input", updateOutput);
+	</script>
+	<!-- code syntax highlighting https://prismjs.com -->
+	<link rel="stylesheet" href="prism.css" />
+	<script src="prism.js"></script>
+	<style>
+	.inputs,
+	pre {
+		height: 25vh;
 	}
 
-	button[type="submit"]:hover {
-	  background: #cc0000;
-	  transform: translateY(-2px);
-	  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.35);
-	}
+	.inputs {
+		display: flex;
+		align-items: flex-start;
+		gap: 1rem;
 
-	button[type="submit"]:active {
-	  background: #a60000;
-	  transform: translateY(0);
-	  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-	}
+		textarea {
+			align-self: normal;
+			width: 100%;
+		}
 
-	button[type="submit"]:focus {
-	  outline: 2px solid #ffcccc;
-	  outline-offset: 2px;
-	}
-
-	/* Optional: add a white play icon inside the button */
-	button[type="submit"]::before {
-	  content: "";
-	  display: inline-block;
-	  margin-right: 0.5em;
-	  border-style: solid;
-	  border-width: 0.5em 0 0.5em 0.9em;
-	  border-color: transparent transparent transparent white;
-	  vertical-align: middle;
-	}
-
-	.rendered{
-		margin: 0 auto;
-		width: 100ch;
-		font-size:calc(100% + .125vw);
-		line-height: 1.5;
-		word-spacing: 0.16em;
-		time{
-			font-weight:bold;
+		input[type="url"] {
+			width: auto;
+			max-width: 80ch;
 		}
 	}
-</style>
+
+	/*pre { background: #f5f5f5; padding: 1em; white-space: pre-wrap; }*/
+	.rendered {
+		margin: 0 auto;
+		width: 100ch;
+		font-size: calc(100% + .125vw);
+		line-height: 1.5;
+		word-spacing: 0.16em;
+
+		time {
+			font-weight: bold;
+		}
+	}
+	</style>
 </body>
 </html>
